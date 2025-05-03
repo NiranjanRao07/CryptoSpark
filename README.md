@@ -7,10 +7,6 @@ File/Object storage: AWS S3
 Big Data Compute: Spark(python)
 Vizualization: Apache Zeppelin 
 
-Thought for a second
-
-
-
 ## Syncing the Binance Full History Dataset to S3
 
 Before running any Spark analytics, we upload the raw Parquet files directly from our local archive folder into Amazon S3 using the AWS CLI:
