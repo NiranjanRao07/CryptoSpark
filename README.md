@@ -13,9 +13,7 @@ Before running any Spark analytics, we upload the raw Parquet files directly fro
 
 ```bash
 # Sync only new or changed files from local → S3
-aws s3 sync \
-  "C:/Path/DATA-228/project/archive" \
-  s3://cryptospark-dataset/archive/
+aws s3 sync "C:\Path\DATA-228\project\archive" s3://cryptospark-dataset/archive/
 ````
 
 * **Local path**: the directory containing all `.parquet` files of minute-level candlesticks
