@@ -14,7 +14,7 @@ Before running any Spark analytics, we upload the raw Parquet files directly fro
 ```bash
 # Sync only new or changed files from local → S3
 aws s3 sync \
-  "C:/Users/niran/OneDrive/Documents/DATA-228/project/archive" \
+  "C:/Path/DATA-228/project/archive" \
   s3://cryptospark-dataset/archive/
 ````
 
