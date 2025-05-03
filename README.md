@@ -10,7 +10,7 @@ Vizualization: Apache Zeppelin
 Thought for a second
 
 
-````markdown
+
 ## Syncing the Binance Full History Dataset to S3
 
 Before running any Spark analytics, we upload the raw Parquet files directly from our local archive folder into Amazon S3 using the AWS CLI:
@@ -25,6 +25,3 @@ aws s3 sync \
 * **Local path**: the directory containing all `.parquet` files of minute-level candlesticks
 * **S3 URI**: `s3://cryptospark-dataset/archive/` in the `cryptospark-dataset` bucket
 * The `sync` command compares source and destination and uploads **only** missing or updated files, saving bandwidth and time.
-
-```
-```
