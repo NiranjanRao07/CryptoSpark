@@ -1,0 +1,30 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "AllowConsoleBucketListing",
+			"Effect": "Allow",
+			"Action": "s3:ListAllMyBuckets",
+			"Resource": "*"
+		},
+		{
+			"Sid": "AllowFullBucketOperations",
+			"Effect": "Allow",
+			"Action": "s3:*",
+			"Resource": [
+				"arn:aws:s3:::cryptospark-dataset",
+				"arn:aws:s3:::cryptospark-dataset/*"
+			]
+		},
+		{
+			"Sid": "AllowSelfManageOwnAccessKeys",
+			"Effect": "Allow",
+			"Action": [
+				"iam:ListAccessKeys",
+				"iam:CreateAccessKey",
+				"iam:DeleteAccessKey"
+			],
+			"Resource": "arn:aws:iam::734786387654:user/${aws:username}"
+		}
+	]
+}
