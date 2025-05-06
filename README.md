@@ -20,10 +20,6 @@ aws s3 sync "C:\Path\DATA-228\project\archive" s3://cryptospark-dataset/archive/
 * **S3 URI**: `s3://cryptospark-dataset/archive/` in the `cryptospark-dataset` bucket
 * The `sync` command compares source and destination and uploads **only** missing or updated files, saving bandwidth and time.
 
-# CryptoSpark Project
-
-This project analyzes the Binance Full History cryptocurrency dataset using Python and AWS S3 for storage.
-
 ## Prerequisites
 
 * **AWS Account** with an S3 bucket named `cryptospark-dataset`.
