@@ -44,7 +44,7 @@ aws s3 sync "C:\Path\DATA-228\project\archive" s3://cryptospark-dataset/archive/
    sudo pip3 install --break-system-packages awswrangler pandas pyarrow
    ```
 
-##AWS CLI Configuration
+## AWS CLI Configuration
 
 Configure your IAM user credentials:
 
