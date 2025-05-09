@@ -1,4 +1,4 @@
-# Binance Market Data - Exploratory Data Analysis (EDA)
+# Binance Market Data - Exploratory Data Analysis (EDA), Preprocessing & Feature Engineering
 
 This Apache Zeppelin notebook (`Binance-EDA.zpln`) performs scalable exploratory data analysis (EDA) on Binance crypto trading data using PySpark.
 
@@ -73,9 +73,23 @@ The notebook covers:
 
 ---
 
-## 🧪 Optional Enhancements
+## 🔄 Data Cleaning
+- Dropped unnecessary columns: `quote_asset_volume`, `number_of_trades`, etc.
+- Removed rows with missing values in critical fields: `open`, `high`, `low`, `close`, `volume`, `date`.
 
-- Add moving averages with different windows (14, 30 days)
-- Compare different trading pairs or time periods
-- Save cleaned/aggregated data back to S3 or local storage
+## 🧮 Feature Engineering
+- **Daily Return**: `(close - open) / open` — Measures daily price change.
+- **Volatility**: `(high - low) / open` — Captures intraday price spread.
+- **Moving Averages**: 7-day (`ma_7`) and 30-day (`ma_30`) moving averages on close.
+- **Cumulative Return** *(optional)*: Running product of log returns per symbol.
+- **Buy Pressure Ratio** *(if available)*: Ratio of taker buy volume to total quote volume.
+
+## ⚙️ Partitioning and Optimization
+- Repartitioned data by `symbol` to optimize Spark transformations.
+- Used `.cache()` to reduce recomputation in multi-stage pipelines.
+
+## 📤 Export
+- Final DataFrame written to S3 in partitioned Parquet format: `s3a://cryptospark-dataset/processed-data/`
+- Ready for downstream ML tasks like return prediction, volatility clustering, or anomaly detection.
+
 
