@@ -1,110 +1,85 @@
-# Metabase + Spark SQL Integration
+```markdown
+# CryptoSpark Demo
 
-This README walks through the steps to expose your local Spark dataset via the Spark Thrift Server and connect it as a database in Metabase for interactive visualization.
+A minimal end-to-end example showing how to:
 
----
-
-## 1. Prerequisites
-
-* **Local Spark installation** (e.g., Spark 3.5.5 with Hive support)
-* **Metabase** Docker container or binary
-* **Data folder** (`archive/`)
-* Network access between Metabase and your host’s Spark Thrift port (default 10000)
+1. **Process** large parquet trade files with PySpark  
+2. **Engineer** features (daily return, volatility, moving averages)  
+3. **Train** a logistic-regression model  
+4. **Serve** predictions via a Flask API  
+5. **Interact** with a Streamlit dashboard
 
 ---
 
-## 2. Prepare your Spark Catalog
+## 📦 Repository Structure
 
-1. **Create a Spark SQL database** and register the raw Parquet files:
-
-   ```bash
-   $SPARK_HOME/bin/spark-sql --master local[3] <<SQL
-   CREATE DATABASE IF NOT EXISTS crypto;
-   USE crypto;
-   DROP TABLE IF EXISTS archive;
-   CREATE EXTERNAL TABLE archive
-     USING PARQUET
-     LOCATION '/archive';
-   SQL
-   ```
-
-2. **Verify tables** via `spark-sql`:
-
-   ```bash
-   $SPARK_HOME/bin/spark-sql --master local[3] \
-     -e "SHOW TABLES IN crypto;"
-   # Should list `archive` table
-   ```
-
----
-
-## 3. Start the Spark Thrift Server
-
-Launch HiveThriftServer2 on `localhost:10000`:
-
-```bash
-$SPARK_HOME/sbin/start-thriftserver.sh \
-  --master local[*] \
-  --conf spark.sql.warehouse.dir=/tmp/warehouse \
-  --conf spark.sql.catalogImplementation=hive \
-  --conf spark.sql.hive.metastore.jars=builtin
 ```
 
-Check it's running:
+.
+├── data/                      # Raw & processed parquet files
+├── models/                    # Saved Spark ML `PipelineModel`
+├── api.py                     # Flask app serving `/predict` endpoint
+├── app.py                     # Streamlit dashboard
+├── requirements.txt           # Python dependencies
+└── README.md                  # This file
+
+````
+
+---
+
+## 🚀 Quick Start
+
+### 1. Install dependencies
+
+Create & activate a virtual environment, then:
 
 ```bash
-$ netstat -tulpn | grep 10000
-# tcp6 ... LISTEN ... java
+pip install --break-system-packages -r requirements.txt
+````
+
+### 2. Preprocess & train (optional)
+
+If you need to regenerate features or retrain:
+
+```bash
+# Launch PySpark shell or run your notebook/script:
+python preprocess_and_train.py
+# → produces `data/processed-data/` and `models/logistic.pipeline`
 ```
 
----
+### 3. Run the Flask API
 
-## 4. Connect Metabase to Spark
+```bash
+export FLASK_APP=api.py
+python -m flask run
+```
 
-1. **Run Metabase** (host network mode):
+By default you’ll have a server at `http://127.0.0.1:5000/predict`.
 
-docker run -d --name metabase --network host metabase/metabase
+### 4. Launch the Streamlit UI
 
-2. **Open Metabase** at `http://localhost:3000` and go through initial setup.
-3. **Add a new database**:
-   - **Database type**: Spark SQL
-   - **Host**: `localhost`
-   - **Port**: `10000`
-   - **Database name**: `crypto`
-   - **Username / Password**: leave blank (no auth)
+```bash
+streamlit run app.py
+```
 
-If you see "Couldn't connect", ensure:
-- Thrift server is listening on `localhost:10000`
-- Metabase can reach `localhost` (use `--network host`)
+Interactively explore your model’s predictions in the browser.
 
 ---
 
-## 5. Explore Your Data
+## 🔧 Configuration
 
-1. In Metabase, go to **Browse → Databases → Crypto**.
-2. Select the **archive** table to view the raw data.
-3. Use **Summarize**, **Filter**, or **SQL Editor** to build queries:
-   - **Daily metrics**: average, min/max, sum of `volume`
-   - **Moving averages**: window functions over `close` price
-   - **Volatility**: `(high - low)/open`
-
-4. **Save questions** and build **Dashboards**.
+* **Spark**: configured in `api.py` / `app.py` via `SparkSession.builder`.
+* **Model**: loaded with `PipelineModel.load("models/logistic.pipeline")`.
+* **Flask**: simple JSON POST `/predict` → `{ features: […] }`.
+* **Streamlit**: reads user inputs, calls Flask API, displays results.
 
 ---
 
-## 6. Troubleshooting
+## 🤝 Contributing
 
-- **Connection refused**: confirm Thrift server is up and listening.
-- **UnknownHostException**: ensure Metabase container’s host settings point to your Spark host.
-- **Permission errors**: start Thrift server with user owning the warehouse directory.
-
----
-
-## 7. Next Steps
-
-- Automate Spark Thrift Server startup on login or as a service.
-- Extend your Spark SQL catalog with pre-processed tables (e.g., daily returns).
-- Secure the connection with authentication, SSL, or SSH tunneling.
-- Share dashboards and embed visualizations in external apps.
+1. Fork this repo
+2. Create a feature branch
+3. Commit & push your changes
+4. Open a pull request
 
 ---
