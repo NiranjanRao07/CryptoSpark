@@ -1,4 +1,3 @@
-```markdown
 # CryptoSpark Demo
 
 A minimal end-to-end example showing how to:
