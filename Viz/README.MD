@@ -73,12 +73,3 @@ Interactively explore your model’s predictions in the browser.
 * **Streamlit**: reads user inputs, calls Flask API, displays results.
 
 ---
-
-## 🤝 Contributing
-
-1. Fork this repo
-2. Create a feature branch
-3. Commit & push your changes
-4. Open a pull request
-
----
