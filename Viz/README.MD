@@ -63,12 +63,8 @@ $ netstat -tulpn | grep 10000
 
 1. **Run Metabase** (host network mode):
 
-   ```bash
-   ```
-
 docker run -d --name metabase --network host metabase/metabase
 
-```
 2. **Open Metabase** at `http://localhost:3000` and go through initial setup.
 3. **Add a new database**:
    - **Database type**: Spark SQL
@@ -112,5 +108,3 @@ If you see "Couldn't connect", ensure:
 - Share dashboards and embed visualizations in external apps.
 
 ---
-
-```
