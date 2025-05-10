@@ -1,13 +1,17 @@
 from flask import Flask, request, jsonify
 from pyspark.sql import SparkSession
 from pyspark.ml.linalg import Vectors
-from pyspark.ml.regression import LinearRegressionModel
+from pyspark.ml.classification import LogisticRegressionModel
+from pyspark.ml import PipelineModel
+
+import os
+os.environ["PYSPARK_PYTHON"] = "/home/niranjanrao07/crypto-spark/CryptoSpark/venv/bin/python3"
 
 # Start Spark
 spark = SparkSession.builder.appName("ModelAPI").getOrCreate()
 
 # Load model
-model = LinearRegressionModel.load("C:/SJSU/Spring_2025/Big_Data_Technologies/Group_Project/GitHub_Repo/CryptoSpark/linearRegression_model")
+model = PipelineModel.load("logisticRegression_model")
 
 # Flask app
 app = Flask(__name__)
@@ -18,12 +22,15 @@ def predict():
     feature_list = data['features']  # List of 14 numeric values
 
     # Create DataFrame with features
-    df = spark.createDataFrame([(Vectors.dense(feature_list),)], ["features"])
+    columns = ['open', 'high', 'low', 'close', 'volume', 'volatility', 'ma_7', 'ma_30', 'cumulative_return']
+    df = spark.createDataFrame([tuple(feature_list)], columns)
 
     # Predict
-    prediction = model.transform(df).collect()[0].prediction
+    predicted_row = model.transform(df).collect()[0]
+    prediction = float(predicted_row.probability[1])  # Probability of positive class (label 1)
 
-    return jsonify({'daily_return': prediction})
+
+    return jsonify({'positive_return_probability': prediction})
 
 if __name__ == '__main__':
     app.run(debug=True)

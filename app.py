@@ -5,7 +5,7 @@ import streamlit as st
 
 # Title
 st.title("Binance Daily Return Predictor")
-st.markdown("Predict the **daily return** of a cryptocurrency using technical indicators.")
+st.markdown("Predict the **probability of a gain** for a cryptocurrency using technical indicators.")
 
 # Sidebar input fields
 st.sidebar.header("Input Features")
@@ -20,43 +20,33 @@ ma_7 = st.sidebar.number_input("7-day Moving Average", min_value=0.0, value=102.
 ma_30 = st.sidebar.number_input("30-day Moving Average", min_value=0.0, value=98.0)
 cumulative_return = st.sidebar.number_input("Cumulative Return", min_value=-1.0, max_value=1.0, value=0.1)
 
-symbol = st.sidebar.selectbox("Symbol", [
-    "BTC-USDT", "ETH-USDT", "ADA-USDT", "SOL-USDT", "BNB-USDT", "1INCH-USDT", "Other"
-])
-
-# One-hot encode symbol
-symbol_features = {
-    "BTC-USDT": [1, 0, 0, 0, 0, 0],
-    "ETH-USDT": [0, 1, 0, 0, 0, 0],
-    "ADA-USDT": [0, 0, 1, 0, 0, 0],
-    "SOL-USDT": [0, 0, 0, 1, 0, 0],
-    "BNB-USDT": [0, 0, 0, 0, 1, 0],
-    "1INCH-USDT": [0, 0, 0, 0, 0, 1],
-    "Other": [0, 0, 0, 0, 0, 0],
-}
-symbol_ohe = symbol_features[symbol]
-
 # Combine all inputs into feature vector
 features = [
     open_price, high_price, low_price, close_price, volume,
     volatility, ma_7, ma_30, cumulative_return
-] + symbol_ohe
+]
 
 # Simulated prediction (placeholder logic)
 predicted_return = np.dot(features, np.random.rand(len(features)))  # To be replaced
 
 # Uncomment below when backend is ready
-# try:
-#     response = requests.post("http://localhost:5000/predict", json={"features": features})
-#     response.raise_for_status()
-#     predicted_return = response.json().get("daily_return", 0)
-# except Exception as e:
-#     st.error(f"Prediction failed: {e}")
-#     predicted_return = 0
+try:
+    response = requests.post("http://localhost:5000/predict", json={"features": features})
+    response.raise_for_status()
+    predicted_return = response.json().get("positive_return_probability", 0)
+except Exception as e:
+    st.error(f"Prediction failed: {e}")
+    predicted_return = 0
 
 # Show prediction
-st.markdown("### Predicted Daily Return")
-st.success(f"{predicted_return:.4f}")
+st.markdown("### Probability of Positive Daily Return")
+st.success(f"{predicted_return:.2%}")  # Shows as percentage (e.g., 76.34%)
+
+# Binary classification result
+if predicted_return >= 0.5:
+    st.info("🔼 **Expected: Gain**")
+else:
+    st.warning("🔽 **Expected: Loss**")
 
 # Optional: Show feature inputs
 if st.checkbox("Show input features"):
@@ -70,7 +60,6 @@ if st.checkbox("Show input features"):
         "ma_7": ma_7,
         "ma_30": ma_30,
         "cumulative_return": cumulative_return,
-        "selected_symbol": symbol
     }
     input_df = pd.DataFrame([display_data])
     st.dataframe(input_df)
