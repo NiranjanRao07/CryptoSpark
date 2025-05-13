@@ -1,75 +1,55 @@
 # Binance Market Data - Exploratory Data Analysis (EDA), Preprocessing & Feature Engineering
 
-This Apache Zeppelin notebook (`Binance-EDA.zpln`) performs scalable exploratory data analysis (EDA) on Binance crypto trading data using PySpark.
+This notebook performs an in-depth EDA on the Binance full history dataset (~35GB of 1-minute OHLCV data across 1000+ trading pairs from 2017–2022). The goal was to reduce data complexity, identify a representative symbol, and analyze its market behavior.
 
----
+🧹 Step 1: Data Reduction
+Read raw Parquet files into a Spark DataFrame
 
-## 📈 What’s in the Notebook?
+Aggregated minute-level data to daily-level using groupBy(symbol, date)
 
-The notebook covers:
+Calculated daily metrics:
 
-### 📦 Data Loading
-- Load from S3 or local disk (Parquet format)
-- Schema inspection and first few rows
+avg(open), avg(close)
 
-### 🧪 Basic EDA
-- Descriptive statistics (`open`, `high`, `low`, `close`, `volume`)
-- Time range check
+max(high), min(low)
 
-### 📅 Daily Aggregation
-- First open, last close, max high, min low
-- Average closing price and total daily volume
-- **Visualization**: Display daily OHLC summary using `z.show()`
+sum(volume), sum(number_of_trades)
 
-### 📊 Moving Average
-- 7-day moving average window for smoothing trends
-- **Visualization**: Display moving average result using `z.show()`
+sum(taker_buy_base_asset_volume)
 
-### 🔍 Buy Pressure Ratio
-- Ratio of taker buy quote volume to total quote asset volume
-- Indicates market pressure
-- **Visualization**: Display daily buy pressure ratio using `z.show()`
+Cached the daily DataFrame for efficient re-use
 
-### 🌩️ Volatility (Candle Range)
-- High minus low, averaged per day
-- **Visualization**: Display volatility pattern using `z.show()`
+🔍 Step 2: Symbol Selection
+Computed average daily volume and price for each symbol
 
-### ⚠️ Outlier Detection
-- Detect candles with the largest high-low range
-- **Visualization**: Show outliers using `z.show()`
+Applied filters:
 
-### 📈 Daily Trade Counts
-- Aggregated number of trades per day
-- **Visualization**: Display daily trades using `z.show()`
+Volume > 1,000,000
 
-### 🕒 Hourly Patterns
-- Average closing price and volume by hour of day
-- **Visualization**: Display hourly trading patterns using `z.show()`
+Price > $10
 
----
+Selected LUNA-USDT for analysis due to its high liquidity and trading activity
 
-## 🧠 Tech Stack
+📈 Topic A: Price Trend & Volatility
+Analyzed daily average close with 7-day and 30-day moving averages
 
-- **Apache Zeppelin**: Notebook interface and visualizations
-- **PySpark**: Distributed processing of large-scale data
-- **Spark SQL**: Structured querying for efficient group-by, filters, and aggregation
+Calculated volatility as (high - low) / open
 
----
+Identified a boom-bust cycle with a sharp crash in mid-2022
 
-## 📂 How to Use
+📉 Topic B: Volume vs. Price Return
+Computed daily price return
 
-1. Open Apache Zeppelin
-2. Click **Import Note**
-3. Upload `Binance-EDA.zpln`
-4. Run each paragraph to generate charts and tables
+Calculated correlation between volume and return (≈ -0.566)
 
----
+Found that high volume often aligned with price drops, suggesting sell-side pressure
 
-## 📝 Notes
+🟢 Topic C: Taker Buy Ratio & Bullish Signals
+Calculated taker buy ratio and applied 7-day moving average
 
-- `.zpln` files are Zeppelin-specific and must be viewed inside Zeppelin
-- Charts (from `z.show()`) will not be visible on GitHub, only inside Zeppelin UI
-- Data format expected: Parquet, with fields like `open_time`, `close`, `high`, `low`, `volume`, etc.
+Defined bullish signals as high ratio (> 0.6) with positive return
+
+No days met both criteria, indicating buyer dominance did not lead to price gains
 
 ---
 
